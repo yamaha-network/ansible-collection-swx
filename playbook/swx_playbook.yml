@@ -1,0 +1,38 @@
+---
+- hosts: yamaha
+  collections: 
+    - yamaha_network.swx
+  connection: network_cli
+  gather_facts: false
+
+  tasks:
+    - name: show environment
+      yamaha_network.swx.swx_command:
+        commands: show environment
+      register: result
+
+    - name: show result
+      debug:
+        msg: "{{ result.stdout_lines[0] }}"
+
+    - name: get backup
+      yamaha_network.swx.swx_config:
+        backup: yes
+        backup_options:
+          dir_path: backup
+          filename: backup.txt
+
+    - name: set vlan1
+      yamaha_network.swx.swx_config:
+        lines:
+          - description management
+        parents:
+          - interface vlan1
+
+  vars:
+    ansible_network_os: yamaha_network.swx.swx
+    ansible_user: ansible
+    ansible_password: ansible
+    ansible_become: yes
+    ansible_become_method: enable
+    ansible_become_password: yamaha
